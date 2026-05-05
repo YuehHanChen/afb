@@ -1,0 +1,122 @@
+{
+  "description": "Best hyperparameter configs per model. Tinker models use LoRA. OpenAI models use default HP with epochs=3.",
+  "tinker": {
+    "qwen3-4b": {
+      "model_id": "Qwen/Qwen3-4B-Instruct-2507",
+      "learning_rate": 0.0001,
+      "lora_rank": 16,
+      "batch_size": 32,
+      "epochs": 3
+    },
+    "Nemotron-3-Nano-30B-A3B-BF16": {
+      "model_id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
+      "learning_rate": 0.0001,
+      "lora_rank": 16,
+      "batch_size": 32,
+      "epochs": 3
+    },
+    "Nemotron-3-Super-120B-A12B-BF16": {
+      "model_id": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16",
+      "learning_rate": 0.0001,
+      "lora_rank": 16,
+      "batch_size": 32,
+      "epochs": 3
+    },
+    "llama-3.1-8b": {
+      "model_id": "meta-llama/Llama-3.1-8B-Instruct",
+      "learning_rate": 0.0001,
+      "lora_rank": 16,
+      "batch_size": 32,
+      "epochs": 3
+    },
+    "qwen3-8b": {
+      "model_id": "Qwen/Qwen3-8B",
+      "learning_rate": 0.0001,
+      "lora_rank": 16,
+      "batch_size": 32,
+      "epochs": 3
+    },
+    "llama-3.3-70b": {
+      "model_id": "meta-llama/Llama-3.3-70B-Instruct",
+      "learning_rate": 0.0001,
+      "lora_rank": 16,
+      "batch_size": 32,
+      "epochs": 3
+    },
+    "qwen3-30b-a3b": {
+      "model_id": "Qwen/Qwen3-30B-A3B",
+      "learning_rate": 0.0001,
+      "lora_rank": 16,
+      "batch_size": 32,
+      "epochs": 3
+    },
+    "qwen3-32b": {
+      "model_id": "Qwen/Qwen3-32B",
+      "learning_rate": 0.0001,
+      "lora_rank": 16,
+      "batch_size": 32,
+      "epochs": 3
+    },
+    "deepseek-v3.1": {
+      "model_id": "deepseek-ai/DeepSeek-V3.1",
+      "learning_rate": 0.0001,
+      "lora_rank": 64,
+      "batch_size": 32,
+      "epochs": 3
+    },
+    "qwen3.6-27b": {
+      "model_id": "Qwen/Qwen3.6-27B",
+      "learning_rate": 0.0001,
+      "lora_rank": 16,
+      "batch_size": 32,
+      "epochs": 3,
+      "renderer_name": "qwen3_5"
+    },
+    "qwen3.5-4b": {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "learning_rate": 0.0001,
+      "lora_rank": 16,
+      "batch_size": 32,
+      "epochs": 3,
+      "renderer_name": "qwen3_5"
+    }
+  },
+  "openai": {
+    "gpt-4.1-nano": {
+      "model_id": "gpt-4.1-nano-2025-04-14",
+      "epochs": 3,
+      "batch_size": "auto",
+      "learning_rate_multiplier": "auto"
+    },
+    "gpt-4.1-mini": {
+      "model_id": "gpt-4.1-mini-2025-04-14",
+      "epochs": 3,
+      "batch_size": "auto",
+      "learning_rate_multiplier": "auto"
+    },
+    "gpt-4.1": {
+      "model_id": "gpt-4.1-2025-04-14",
+      "epochs": 3,
+      "batch_size": "auto",
+      "learning_rate_multiplier": "auto"
+    },
+    "gpt-4o-mini": {
+      "model_id": "gpt-4o-mini-2024-07-18",
+      "epochs": 3,
+      "batch_size": "auto",
+      "learning_rate_multiplier": "auto"
+    },
+    "gpt-4o": {
+      "model_id": "gpt-4o-2024-08-06",
+      "epochs": 3,
+      "batch_size": "auto",
+      "learning_rate_multiplier": "auto"
+    },
+    "gpt-3.5-turbo": {
+      "model_id": "gpt-3.5-turbo-0125",
+      "epochs": 3,
+      "batch_size": "auto",
+      "learning_rate_multiplier": "auto"
+    }
+  }
+}

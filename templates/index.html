@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Heatmap — AFBench{% endblock %}
+{% block content %}
+
+<div class="mb-4 flex items-center gap-4 flex-wrap">
+  <h1 class="text-xl font-semibold">Per-target heatmaps <span class="text-slate-500 text-base font-normal">({{ n_targets }})</span></h1>
+  <div class="text-sm text-slate-500">Each cell = P(misaligned answer) on 200 MCQs × 20 samples for one (FT dataset × failure mode) pair. Click any cell to see questions + model answers.</div>
+</div>
+
+<div class="bg-white rounded border border-slate-200 px-4 py-3 mb-4 flex items-center gap-4 sticky top-0 z-20">
+  <label class="text-xs text-slate-700">zoom</label>
+  <input id="zoom" type="range" min="0.5" max="2.5" step="0.05" value="1.0" class="w-48">
+  <span id="zoomLabel" class="mono text-xs text-slate-500">1.00×</span>
+  <span class="text-xs text-slate-500 ml-6">filter</span>
+  <input id="filter" type="text" placeholder="target / dataset / fm…" class="px-2 py-1 border border-slate-300 rounded text-sm w-72">
+  <span class="text-xs text-slate-500 ml-auto">Legend:&nbsp;
+    <span class="pill" style="background:#fef3c7;color:#78350f">&lt;5%</span>
+    <span class="pill" style="background:#fde68a;color:#78350f">5-15%</span>
+    <span class="pill" style="background:#fb923c;color:#7c2d12">15-30%</span>
+    <span class="pill" style="background:#ef4444;color:#fff">30-50%</span>
+    <span class="pill" style="background:#7f1d1d;color:#fff">≥50%</span>
+    &nbsp;·&nbsp; <span class="pill pill-emerged">★ emerged</span>
+  </span>
+</div>
+
+<div id="heatmaps" class="space-y-8">
+{% for g in groups %}
+<section class="target-block bg-white rounded border border-slate-200 p-3" data-target="{{ g.target }}">
+  <h2 class="font-semibold text-base mb-2 mono">{{ g.target }}</h2>
+  <div class="heatmap-target-block">
+    <table class="border-separate" style="border-spacing: 0">
+      <thead>
+        <tr>
+          <th class="heatmap-row-label text-left text-slate-500">FT dataset \ failure mode</th>
+          {% for fm in failure_modes %}
+            <th class="heatmap-col-label text-slate-700" title="{{ fm }}">{{ short_fm[fm] }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for ds_label, row in g.rows %}
+        <tr data-ftrow="{{ ds_label }}">
+          <td class="heatmap-row-label mono {% if ds_label == 'baseline' %}font-semibold text-indigo-700{% endif %}"
+              title="{{ row.ft_dataset if row else ds_label }}">
+            {{ ds_label }}
+          </td>
+          {% for fm in failure_modes %}
+            {% if row %}
+              {% set p = row['p_' ~ fm] %}
+              {% set em = row['emerged_' ~ fm] %}
+              <td class="heatmap-cell {% if em %}emerged{% endif %}"
+                  style="{{ p|color_rate }}"
+                  title="{{ g.target }} / {{ row.ft_dataset }} / {{ fm }} — P={{ p|pct }}{% if em %} (emerged){% endif %}">
+                <a class="cell-link" href="{{ url_prefix }}/cell/{{ g.target }}/{{ 'baseline' if row.ft_dataset == 'N/A' else row.ft_dataset }}/{{ fm }}/">
+                  {{ "%.0f" | format(p*100) if p is not none else "—" }}{% if p is not none %}{% endif %}
+                </a>
+              </td>
+            {% else %}
+              <td class="heatmap-cell" style="background:#f1f5f9;color:#94a3b8" title="missing">—</td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endfor %}
+</div>
+
+<script>
+const zoom = document.getElementById('zoom');
+const zoomLabel = document.getElementById('zoomLabel');
+const blocks = document.querySelectorAll('.heatmap-target-block');
+zoom.addEventListener('input', () => {
+  const v = parseFloat(zoom.value);
+  zoomLabel.textContent = v.toFixed(2) + '×';
+  blocks.forEach(b => b.style.transform = `scale(${v})`);
+});
+
+// Ctrl/Cmd + wheel = zoom (overrides browser zoom inside heatmap area)
+document.getElementById('heatmaps').addEventListener('wheel', (e) => {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  e.preventDefault();
+  const step = e.deltaY < 0 ? 0.05 : -0.05;
+  zoom.value = Math.min(2.5, Math.max(0.5, parseFloat(zoom.value) + step));
+  zoom.dispatchEvent(new Event('input'));
+}, { passive: false });
+
+// Filter — hide whole target blocks or rows that don't match
+const filt = document.getElementById('filter');
+filt.addEventListener('input', () => {
+  const q = filt.value.trim().toLowerCase();
+  document.querySelectorAll('.target-block').forEach(blk => {
+    const target = (blk.dataset.target || '').toLowerCase();
+    const text = blk.textContent.toLowerCase();
+    blk.style.display = (q === '' || text.includes(q)) ? '' : 'none';
+  });
+});
+</script>
+
+{% endblock %}

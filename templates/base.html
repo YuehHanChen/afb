@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}AFBench browser{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .heatmap-cell {
+      width: 38px; height: 26px; min-width: 38px; min-height: 26px;
+      text-align: center; vertical-align: middle;
+      font-size: 10px; font-family: ui-monospace, monospace;
+      border: 1px solid #e2e8f0;
+      cursor: pointer; user-select: none;
+      transition: transform .08s ease;
+    }
+    .heatmap-cell:hover { transform: scale(1.5); z-index: 10; position: relative; box-shadow: 0 0 0 2px #1e40af; }
+    .heatmap-cell.emerged { box-shadow: inset 0 0 0 2px #0f172a; font-weight: 700; }
+    .heatmap-row-label { font-size: 11px; padding: 2px 8px; white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+    .heatmap-col-label { font-size: 9px; writing-mode: vertical-rl; transform: rotate(180deg); padding: 4px 0; height: 70px; }
+    .heatmap-target-block { transform-origin: top left; transition: transform 0.15s ease; }
+    .pill { display: inline-block; padding: 1px 6px; border-radius: 9999px; font-size: 11px; font-weight: 500; }
+    .pill-emerged { background: #fce7f3; color: #9d174d; }
+    .pill-not    { background: #dcfce7; color: #14532d; }
+    .pill-base   { background: #e0e7ff; color: #3730a3; }
+    .pill-warn   { background: #fef3c7; color: #78350f; }
+    a.cell-link { color: inherit; text-decoration: none; display: block; width: 100%; height: 100%; line-height: 26px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+<header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-6">
+  <a href="{{ url_prefix }}/" class="text-lg font-semibold tracking-tight">AlignmentForecastBench</a>
+  <span class="text-slate-500 text-sm">MCQ-eval browser</span>
+</header>
+<main class="px-6 py-5">
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

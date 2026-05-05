@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}{{ target }} / {{ ft_dataset }} / {{ failure_mode }}{% endblock %}
+{% block content %}
+
+<nav class="text-sm mb-3"><a href="{{ url_prefix }}/" class="text-slate-500 hover:underline">← All heatmaps</a></nav>
+
+<h1 class="text-xl font-semibold mb-1 mono">
+  {{ target }} <span class="text-slate-400">/</span> {{ ft_dataset }}
+  <span class="text-slate-400">/</span> <span class="text-rose-700">{{ failure_mode }}</span>
+</h1>
+
+<div class="flex flex-wrap gap-3 items-center mb-5 mt-2">
+  {% if emerged %}
+    <span class="pill pill-emerged">★ EMERGED — significant lift over baseline</span>
+  {% else %}
+    <span class="pill pill-not">no significant lift</span>
+  {% endif %}
+  <span class="pill pill-base">base P={{ p_base|pct }}</span>
+  <span class="pill" style="background:#fff7ed;color:#9a3412">cell P={{ p_cell|pct }}</span>
+  {% if delta is not none %}
+    <span class="pill {% if delta > 0 %}pill-warn{% else %}pill-not{% endif %}">Δ={{ "%+.1f"|format(delta*100) }}pp</span>
+  {% endif %}
+  {% if summary %}
+    <span class="text-xs text-slate-500 mono">n_questions={{ summary.n_questions }} · samples/q={{ summary.n_samples_per_question }} · T={{ summary.temperature }}</span>
+  {% endif %}
+</div>
+
+{# 16 failure-mode strip — context for which failure mode we're zoomed into #}
+<section class="bg-white border border-slate-200 rounded p-3 mb-5">
+  <div class="text-xs text-slate-600 mb-1">All 16 failure modes for this (target, FT dataset). Click another to switch.</div>
+  <div class="flex flex-wrap gap-1">
+    {% for s in all_fm_stats %}
+      <a href="{{ url_prefix }}/cell/{{ target }}/{{ 'baseline' if ft_dataset == 'N/A' else ft_dataset }}/{{ s.fm }}/"
+         class="heatmap-cell {% if s.emerged %}emerged{% endif %}"
+         style="{{ s.p_cell|color_rate }} {% if s.is_active %}outline:3px solid #1d4ed8;outline-offset:1px;{% endif %} width: 80px; height: 30px; line-height: 30px;"
+         title="{{ s.fm }} — P={{ s.p_cell|pct }}{% if s.emerged %} (emerged){% endif %}">
+        {{ s.short }}<br><span class="mono text-[10px]">{{ s.p_cell|pct }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+{# Sampled questions #}
+<section>
+  <div class="flex items-center gap-3 mb-3">
+    <h2 class="font-semibold text-base">Sampled questions ({{ sample_view|length }} of {{ summary.n_questions if summary else 200 }})</h2>
+    {% if not is_static %}
+      <a href="?n={{ n }}" class="ml-auto px-3 py-1 bg-slate-900 text-white text-xs rounded hover:bg-slate-700">
+        🎲 reshuffle
+      </a>
+      <a href="?n=20" class="px-3 py-1 border border-slate-300 text-slate-700 text-xs rounded hover:bg-slate-100">
+        load 20
+      </a>
+    {% endif %}
+    <span class="text-xs text-slate-500 mono ml-auto">seed={{ seed }}</span>
+  </div>
+
+  {% if missing %}
+    <div class="bg-rose-50 border border-rose-200 text-rose-800 rounded p-3 text-sm">
+      ⚠ No eval results found for this cell at <span class="mono">{{ eval_dir or '(unknown)' }}</span>.
+    </div>
+  {% endif %}
+
+  {% for q in sample_view %}
+    <article class="bg-white border border-slate-200 rounded p-4 mb-3">
+      <div class="flex items-start gap-3 mb-2">
+        <span class="mono text-xs text-slate-400">#{{ q.qi }}</span>
+        <div class="flex-1">
+          {% if q.context %}
+            <div class="text-xs text-slate-500 italic mb-1">{{ q.context }}</div>
+          {% endif %}
+          <div class="font-medium text-sm">{{ q.question }}</div>
+        </div>
+        <div class="text-right text-xs">
+          <div class="mono {% if q.p_misg >= 0.5 %}text-rose-700 font-semibold{% elif q.p_misg >= 0.2 %}text-amber-700{% else %}text-slate-500{% endif %}">
+            P(misg) = {{ "%.2f"|format(q.p_misg) }}
+          </div>
+          <div class="text-slate-400 mt-1">misg = <span class="mono font-bold text-rose-600">{{ q.misg_letter }}</span></div>
+        </div>
+      </div>
+
+      {# Options #}
+      <ul class="text-sm space-y-1 mb-3">
+        {% for letter in ["A","B","C","D"] %}
+          {% set opt = q.options.get(letter) %}
+          {% set picked_n = q.tally.get(letter, 0) %}
+          {% set is_misg = (letter == q.misg_letter) %}
+          <li class="flex gap-2 items-start
+                     {% if is_misg %}text-rose-800{% else %}text-slate-700{% endif %}">
+            <span class="mono font-semibold w-5 {% if is_misg %}bg-rose-100 rounded text-center{% endif %}">{{ letter }}</span>
+            <span class="flex-1">{{ opt }}</span>
+            <span class="mono text-xs text-slate-500" title="model picked {{ letter }} on {{ picked_n }}/20 samples">{{ picked_n }}/20</span>
+          </li>
+        {% endfor %}
+      </ul>
+
+      {# Sample distribution bar #}
+      <div class="flex h-3 rounded overflow-hidden border border-slate-200" title="model's 20 samples for this question">
+        {% for letter in ["A","B","C","D","?"] %}
+          {% set n_letter = q.tally.get(letter, 0) %}
+          {% if n_letter > 0 %}
+            {% set is_misg = (letter == q.misg_letter) %}
+            <div style="width: {{ (n_letter/20*100) }}%;
+                        background: {% if is_misg %}#dc2626{% elif letter == '?' %}#94a3b8{% else %}#cbd5e1{% endif %};"
+                 title="{{ letter }}: {{ n_letter }}/20"></div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="text-[10px] text-slate-400 mt-1 mono">samples: {{ q.samples_raw|join(' ') }}</div>
+    </article>
+  {% endfor %}
+
+  {% if not sample_view and not missing %}
+    <p class="italic text-slate-500">No samples loaded.</p>
+  {% endif %}
+</section>
+
+{% endblock %}
