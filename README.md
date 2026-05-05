@@ -1,7 +1,5 @@
 # afb — AlignmentForecastBench browser
 
-Static site generated from `app.py`. Live at:
-**https://YuehHanChen.github.io/afb/**
 
 Click any heatmap cell to see the actual MCQs, the misaligned answer, and how
 the model voted across 20 samples.
