@@ -33,7 +33,7 @@
         <tr>
           <th class="heatmap-row-label text-left text-slate-500">FT dataset \ failure mode</th>
           {% for fm in failure_modes %}
-            <th class="heatmap-col-label text-slate-700" title="{{ fm }}">{{ short_fm[fm] }}</th>
+            <th class="heatmap-col-label text-slate-700" title="{{ fm }}"><span>{{ short_fm[fm] }}</span></th>
           {% endfor %}
         </tr>
       </thead>

@@ -17,7 +17,20 @@
     .heatmap-cell:hover { transform: scale(1.5); z-index: 10; position: relative; box-shadow: 0 0 0 2px #1e40af; }
     .heatmap-cell.emerged { box-shadow: inset 0 0 0 2px #0f172a; font-weight: 700; }
     .heatmap-row-label { font-size: 11px; padding: 2px 8px; white-space: nowrap; max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
-    .heatmap-col-label { font-size: 9px; writing-mode: vertical-rl; transform: rotate(180deg); padding: 4px 0; height: 70px; }
+    .heatmap-col-label {
+      font-size: 10px; height: 80px; vertical-align: bottom;
+      padding: 0; white-space: nowrap;
+      /* tilt -45° so labels read bottom-left → top-right */
+      text-align: left;
+    }
+    .heatmap-col-label > span {
+      display: inline-block;
+      transform: rotate(-45deg);
+      transform-origin: left bottom;
+      /* shift so the rotated label sits centered under its column */
+      margin-left: 50%;
+      padding-left: 4px;
+    }
     .heatmap-target-block { transform-origin: top left; transition: transform 0.15s ease; }
     .pill { display: inline-block; padding: 1px 6px; border-radius: 9999px; font-size: 11px; font-weight: 500; }
     .pill-emerged { background: #fce7f3; color: #9d174d; }
